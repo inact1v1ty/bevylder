@@ -1,0 +1,8 @@
+{
+  "wgsl-analyzer.customImports": {
+    "bevy_pbr::mesh_view_bind_group": "https://raw.githubusercontent.com/bevyengine/bevy/v0.7.0/crates/bevy_pbr/src/render/mesh_view_bind_group.wgsl",
+    "bevy_pbr::mesh_struct": "https://raw.githubusercontent.com/bevyengine/bevy/v0.7.0/crates/bevy_pbr/src/render/mesh_struct.wgsl",
+    "bevy_pbr::mesh_types": "https://raw.githubusercontent.com/bevyengine/bevy/v0.7.0/crates/bevy_pbr/src/render/mesh_types.wgsl",
+    "bevy_pbr::mesh_view_bindings": "https://raw.githubusercontent.com/bevyengine/bevy/v0.7.0/crates/bevy_pbr/src/render/mesh_view_bindings.wgsl"
+  }
+}

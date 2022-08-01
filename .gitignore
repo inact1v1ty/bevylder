@@ -1,0 +1,7 @@
+/target
+/Cargo.lock
+
+### Visual Studio Code ###
+.vscode/**/*
+!.vscode/settings.default.json
+!.vscode/extensions.json

@@ -1,0 +1,12 @@
+{
+    // See http://go.microsoft.com/fwlink/?LinkId=827846
+    // for the documentation about the extensions.json format
+    "recommendations": [
+        // Rust analyzer
+        "rust-lang.rust-analyzer",
+        // WGSL language server (with bevy-like inports support)
+        "wgsl-analyzer.wgsl-analyzer",
+        // Using default settings automatically
+        "dangmai.workspace-default-settings"
+    ]
+}

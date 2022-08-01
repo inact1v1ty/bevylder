@@ -1,0 +1,26 @@
+[package]
+name = "bevylder"
+resolver = "2"
+version = "0.1.0"
+authors = ["Nikita @inact1v1ty Krylov <krylov.nikita.a@gmail.com>"]
+edition = "2021"
+categories = ["game-engines", "graphics", "rendering"]
+keywords = ["graphics", "bevy", "voxel"]
+description = "Voxels brought to bevy"
+repository = "https://github.com/inact1v1ty/bevylder"
+homepage = "https://github.com/inact1v1ty/bevylder"
+documentation = "https://docs.rs/bevylder"
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+
+[dependencies]
+bevy = { version = "0.7.0", default-features = false, features = ["render"] }
+bitflags = "1.2"
+
+[dev-dependencies]
+smooth-bevy-cameras = "0.4.0"
+clap = { version = "3.1.18", features = ["derive"] }
+
+[[example]]
+name = "rubberduck"
+required-features = [ "bevy/bevy_winit" ]
