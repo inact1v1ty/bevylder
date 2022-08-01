@@ -1,5 +1,7 @@
 # 🌳 Bevylder
 
+[![Crate](https://img.shields.io/crates/v/bevylder.svg)](https://crates.io/crates/bevylder)
+[![Doc](https://docs.rs/bevylder/badge.svg)](https://docs.rs/bevylder)
 [![License: MIT/Apache](https://img.shields.io/badge/License-MIT%20or%20Apache2-blue.svg)](https://opensource.org/licenses/MIT)
 [![Bevy tracking](https://img.shields.io/badge/Bevy%20tracking-v0.7-lightblue)](https://github.com/bevyengine/bevy/blob/main/docs/plugins_guidelines.md#main-branch-tracking)
 
@@ -23,6 +25,14 @@ cargo run --release --features="bevy/bevy_winit","bevy/dynamic" --example rubber
 ```sh
 cargo run --release --features="bevy/bevy_winit","bevy/dynamic" --example rubberduck -- --stress <N>
 ```
+
+### Why the name
+It is a pun on bevy + bewilder, didn't want to give it a generic name like bevy_voxels. The plugin is somewhat opinionated so the name suits it well.
+
+### Next up
+As this is still a PoC, features are incrementally added
+- [ ] Move to bevy 0.8
+- [ ] Combine individual voxels into "pouches" to use instance rendering
 
 ***
 
