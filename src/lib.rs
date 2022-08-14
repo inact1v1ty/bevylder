@@ -1,5 +1,6 @@
 use bevy::{
-    core_pipeline::core_3d::Transparent3d,
+    asset::load_internal_asset,
+    core_pipeline::core_3d::AlphaMask3d,
     prelude::*,
     render::{
         extract_component::ExtractComponentPlugin, extract_resource::ExtractResourcePlugin,
@@ -21,15 +22,17 @@ pub use bundle::VoxelBundle;
 pub use voxel::{Voxel, VoxelData};
 
 use extract_voxel_mesh_uniforms::extract_voxel_meshes;
+use pipeline::VOXEL_SHADER_HANDLE;
 
 pub struct VoxelPlugin;
 
 impl Plugin for VoxelPlugin {
     fn build(&self, app: &mut App) {
-        let mut assets = app.world.resource_mut::<Assets<_>>();
-        assets.set_untracked(
-            pipeline::VOXEL_SHADER_HANDLE,
-            Shader::from_wgsl(include_str!("shaders/voxel.wgsl")),
+        load_internal_asset!(
+            app,
+            VOXEL_SHADER_HANDLE,
+            "shaders/voxel.wgsl",
+            Shader::from_wgsl
         );
 
         app.add_plugin(ExtractComponentPlugin::<voxel::Voxel>::default())
@@ -39,7 +42,7 @@ impl Plugin for VoxelPlugin {
             .init_resource::<voxel_mesh::VoxelMesh>();
 
         app.sub_app_mut(RenderApp)
-            .add_render_command::<Transparent3d, draw::DrawVoxels>()
+            .add_render_command::<AlphaMask3d, draw::DrawVoxels>()
             .init_resource::<pipeline::VoxelPipeline>()
             .init_resource::<SpecializedMeshPipelines<pipeline::VoxelPipeline>>()
             .add_system_to_stage(RenderStage::Extract, extract_voxel_meshes)

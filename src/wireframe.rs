@@ -5,6 +5,7 @@
 //
 // at your option.
 
+use bevy::asset::load_internal_asset;
 use bevy::core_pipeline::core_3d::Opaque3d;
 use bevy::ecs::{prelude::*, reflect::ReflectComponent};
 use bevy::pbr::MeshPipeline;
@@ -37,10 +38,11 @@ pub struct VoxelWireframePlugin;
 
 impl Plugin for VoxelWireframePlugin {
     fn build(&self, app: &mut App) {
-        let mut assets = app.world.resource_mut::<Assets<_>>();
-        assets.set_untracked(
+        load_internal_asset!(
+            app,
             WIREFRAME_SHADER_HANDLE,
-            Shader::from_wgsl(include_str!("shaders/wireframe.wgsl")),
+            "shaders/wireframe.wgsl",
+            Shader::from_wgsl
         );
 
         app.init_resource::<VoxelWireframeConfig>()

@@ -68,7 +68,7 @@ fn fragment(in: VertexOutput) -> @location(0) vec4<f32> {
     var color = get_color(vpos);
 
     if (color.a > 0.5) {
-        return vec4<f32>(color.rgb, 0.0);
+        return vec4<f32>(color.rgb, 1.0);
     }
 
     let vsign = sign(view_dir);
@@ -86,29 +86,29 @@ fn fragment(in: VertexOutput) -> @location(0) vec4<f32> {
         if (t_max.x < t_max.y) {
             if (t_max.x < t_max.z) {
                 vpos.x = vpos.x + step.x;
-                if (vpos.x < 0 || vpos.x >= 16) { return vec4<f32>(0.0, 0.0, 0.0, 0.0); }
+                if (vpos.x < 0 || vpos.x >= 16) { break; }
                 t_max.x = t_max.x + t_delta.x;
             } else {
                 vpos.z = vpos.z + step.z;
-                if (vpos.z < 0 || vpos.z >= 16) { return vec4<f32>(0.0, 0.0, 0.0, 0.0); }
+                if (vpos.z < 0 || vpos.z >= 16) { break; }
                 t_max.z = t_max.z + t_delta.z;
             }
         } else {
             if (t_max.y < t_max.z) {
                 vpos.y = vpos.y + step.y;
-                if (vpos.y < 0 || vpos.y >= 16) { return vec4<f32>(0.0, 0.0, 0.0, 0.0); }
+                if (vpos.y < 0 || vpos.y >= 16) { break; }
                 t_max.y = t_max.y + t_delta.y;
             } else {
                 vpos.z = vpos.z + step.z;
-                if (vpos.z < 0 || vpos.z >= 16) { return vec4<f32>(0.0, 0.0, 0.0, 0.0); }
+                if (vpos.z < 0 || vpos.z >= 16) { break; }
                 t_max.z = t_max.z + t_delta.z;
             }
         }
         color = get_color(vpos);
 
         if (color.a > 0.5) {
-            return vec4<f32>(color.rgb, 0.0);
+            return vec4<f32>(color.rgb, 1.0);
         }
     }
-    return vec4<f32>(0.0, 0.0, 0.0, 0.0);
+    discard;
 }
