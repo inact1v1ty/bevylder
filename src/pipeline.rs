@@ -6,8 +6,8 @@ use bevy::{
         mesh::MeshVertexBufferLayout,
         render_resource::{
             BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingType,
-            BufferBindingType, BufferSize, RenderPipelineDescriptor, ShaderStages,
-            SpecializedMeshPipeline, SpecializedMeshPipelineError,
+            BufferBindingType, RenderPipelineDescriptor, ShaderStages, SpecializedMeshPipeline,
+            SpecializedMeshPipelineError,
         },
         renderer::RenderDevice,
     },
@@ -34,11 +34,9 @@ impl FromWorld for VoxelPipeline {
                     binding: 0,
                     visibility: ShaderStages::FRAGMENT,
                     ty: BindingType::Buffer {
-                        ty: BufferBindingType::Uniform,
+                        ty: BufferBindingType::Storage { read_only: true },
                         has_dynamic_offset: false,
-                        min_binding_size: BufferSize::new(
-                            (std::mem::size_of::<u32>() as u64) * 16 * 16 * 16,
-                        ),
+                        min_binding_size: None,
                     },
                     count: None,
                 }],

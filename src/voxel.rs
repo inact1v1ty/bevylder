@@ -1,13 +1,14 @@
 use bevy::{
+    core::cast_slice,
     ecs::system::{lifetimeless::SRes, SystemParamItem},
     prelude::*,
     reflect::TypeUuid,
     render::{
+        extract_component::ExtractComponent,
         render_asset::{PrepareAssetError, RenderAsset},
-        render_component::ExtractComponent,
         render_resource::{
-            internal::bytemuck, BindGroup, BindGroupDescriptor, BindGroupEntry, Buffer,
-            BufferInitDescriptor, BufferUsages,
+            BindGroup, BindGroupDescriptor, BindGroupEntry, Buffer, BufferInitDescriptor,
+            BufferUsages,
         },
         renderer::RenderDevice,
     },
@@ -47,8 +48,8 @@ impl RenderAsset for VoxelData {
     ) -> Result<Self::PreparedAsset, PrepareAssetError<Self::ExtractedAsset>> {
         let buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
             label: Some("voxel data buffer"),
-            contents: bytemuck::cast_slice(&extracted_asset.0),
-            usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
+            contents: cast_slice(&extracted_asset.0),
+            usage: BufferUsages::STORAGE | BufferUsages::COPY_DST,
         });
 
         let bind_group = render_device.create_bind_group(&BindGroupDescriptor {

@@ -44,7 +44,7 @@ fn main() {
         .insert_resource(VoxelWireframeConfig { global: true })
         .add_plugin(VoxelWireframePlugin)
         .add_plugin(ClapPlugin::<Context>::default())
-        .add_system(bevy::input::system::exit_on_esc_system)
+        .add_system(bevy::window::close_on_esc)
         .add_system(disable_on_blur)
         .add_startup_system(setup)
         .add_system(fps_system)
@@ -74,7 +74,6 @@ fn setup(
             }
         }
 
-        commands.spawn_bundle(UiCameraBundle::default());
         commands
             .spawn_bundle(TextBundle {
                 text: Text {
@@ -116,7 +115,7 @@ fn setup(
                 },
                 style: Style {
                     position_type: PositionType::Absolute,
-                    position: Rect {
+                    position: UiRect {
                         top: Val::Px(5.0),
                         left: Val::Px(5.0),
                         ..default()
@@ -155,16 +154,17 @@ fn setup(
         ..default()
     });
     // camera
-    commands.spawn_bundle(FpsCameraBundle::new(
-        FpsCameraController {
-            translate_sensitivity: 0.1,
-            mouse_rotate_sensitivity: Vec2::splat(0.001),
-            ..Default::default()
-        },
-        PerspectiveCameraBundle::default(),
-        Vec3::new(-1.0, 1.25, 2.5),
-        Vec3::ZERO,
-    ));
+    commands
+        .spawn_bundle(Camera3dBundle::default())
+        .insert_bundle(FpsCameraBundle::new(
+            FpsCameraController {
+                translate_sensitivity: 0.1,
+                mouse_rotate_sensitivity: Vec2::splat(0.001),
+                ..Default::default()
+            },
+            Vec3::new(-1.0, 1.25, 2.5),
+            Vec3::ZERO,
+        ));
 }
 
 fn disable_on_blur(
@@ -172,19 +172,19 @@ fn disable_on_blur(
     focused_event: Res<Events<WindowFocused>>,
     mut controllers: Query<&mut FpsCameraController>,
 ) {
-    let window = windows.primary_mut();
+    if let Some(window) = windows.get_primary_mut() {
+        let focus_changed = focused_event
+            .get_reader()
+            .iter(&focused_event)
+            .any(|ev| ev.id == window.id());
 
-    let focus_changed = focused_event
-        .get_reader()
-        .iter(&focused_event)
-        .any(|ev| ev.id == window.id());
+        if focus_changed {
+            let mut controller = controllers.single_mut();
+            controller.enabled = window.is_focused();
 
-    if focus_changed {
-        let mut controller = controllers.single_mut();
-        controller.enabled = window.is_focused();
-
-        window.set_cursor_visibility(!window.is_focused());
-        window.set_cursor_lock_mode(window.is_focused());
+            window.set_cursor_visibility(!window.is_focused());
+            window.set_cursor_lock_mode(window.is_focused());
+        }
     }
 }
 

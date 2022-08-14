@@ -1,7 +1,7 @@
 [package]
 name = "bevylder"
 resolver = "2"
-version = "0.1.0"
+version = "0.2.0-dev"
 authors = ["Nikita @inact1v1ty Krylov <krylov.nikita.a@gmail.com>"]
 edition = "2021"
 categories = ["game-engines", "graphics", "rendering"]
@@ -14,11 +14,11 @@ license = "MIT OR Apache-2.0"
 readme = "README.md"
 
 [dependencies]
-bevy = { version = "0.7.0", default-features = false, features = ["render"] }
+bevy = { version = "0.8.0", default-features = false, features = ["render", "bevy_asset"] }
 bitflags = "1.2"
 
 [dev-dependencies]
-smooth-bevy-cameras = "0.4.0"
+smooth-bevy-cameras = { git = "https://github.com/bonsairobo/smooth-bevy-cameras", rev = "a1095b9bc563d459c79b59e12ef620fa4567e04e" }
 clap = { version = "3.1.18", features = ["derive"] }
 
 [[example]]

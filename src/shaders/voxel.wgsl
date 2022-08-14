@@ -1,36 +1,37 @@
-#import bevy_pbr::mesh_view_bind_group
-#import bevy_pbr::mesh_struct
+#import bevy_pbr::mesh_types
+#import bevy_pbr::mesh_view_bindings
 
-[[group(1), binding(0)]]
+@group(1) @binding(0)
 var<uniform> mesh: Mesh;
 
+// NOTE: Bindings must come before functions that use them!
+#import bevy_pbr::mesh_functions
+
 struct Vertex {
-    [[location(0)]] position: vec3<f32>;
-    [[location(1)]] normal: vec3<f32>;
-    [[location(2)]] uv: vec2<f32>;
+    @location(0) position: vec3<f32>,
+    @location(1) normal: vec3<f32>,
+    @location(2) uv: vec2<f32>,
 };
 
 struct VertexOutput {
-    [[builtin(position)]] clip_position: vec4<f32>;
-    [[location(0)]] vertex_position: vec3<f32>;
+    @builtin(position) clip_position: vec4<f32>,
+    @location(0) vertex_position: vec3<f32>,
 };
 
-[[stage(vertex)]]
+@vertex
 fn vertex(vertex: Vertex) -> VertexOutput {
-    let world_position = mesh.model * vec4<f32>(vertex.position, 1.0);
-
     var out: VertexOutput;
-    out.clip_position = view.view_proj * world_position;
+    out.clip_position = mesh_position_local_to_clip(mesh.model, vec4<f32>(vertex.position, 1.0));
     out.vertex_position = vertex.position;
     return out;
 }
 
 struct Voxel {
-    data: array<u32, 4096>;
+    data: array<u32, 4096>,
 };
 
-[[group(2), binding(0)]]
-var<uniform> voxel: Voxel;
+@group(2) @binding(0)
+var<storage> voxel: Voxel;
 
 fn to_color(byte: u32) -> vec4<f32> {
     let a = (byte >> 24u) & 0xFFu;
@@ -41,7 +42,7 @@ fn to_color(byte: u32) -> vec4<f32> {
     return vec4<f32>(f32(r) / 255.0, f32(g) / 255.0, f32(b) / 255.0, f32(a) / 255.0);
 }
 
-fn get(vpos: vec3<i32>) -> vec4<f32> {
+fn get_color(vpos: vec3<i32>) -> vec4<f32> {
     let uvpos = vec3<u32>(vpos);
     let idx = uvpos.x + uvpos.z * 16u + uvpos.y * 256u;
     return to_color(voxel.data[idx]);
@@ -59,12 +60,12 @@ fn intersect_plane_t(p: vec3<f32>, dir: vec3<f32>, plane: vec3<f32>) -> f32 {
     return 1000.0;
 }
 
-[[stage(fragment)]]
-fn fragment(in: VertexOutput) -> [[location(0)]] vec4<f32> {
+@fragment
+fn fragment(in: VertexOutput) -> @location(0) vec4<f32> {
     let obj_space_camera_pos = (vec4<f32>(view.world_position, 1.0) * mesh.inverse_transpose_model).xyz;
     let view_dir = normalize(in.vertex_position - obj_space_camera_pos);
     var vpos = vec3<i32>((in.vertex_position + 0.5) * 15.9999);
-    var color = get(vpos);
+    var color = get_color(vpos);
 
     if (color.a > 0.5) {
         return vec4<f32>(color.rgb, 0.0);
@@ -103,7 +104,7 @@ fn fragment(in: VertexOutput) -> [[location(0)]] vec4<f32> {
                 t_max.z = t_max.z + t_delta.z;
             }
         }
-        color = get(vpos);
+        color = get_color(vpos);
 
         if (color.a > 0.5) {
             return vec4<f32>(color.rgb, 0.0);

@@ -1,6 +1,6 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, render::extract_resource::ExtractResource};
 
-#[derive(Clone)]
+#[derive(ExtractResource, Clone)]
 pub struct VoxelMesh {
     pub(crate) mesh: Handle<Mesh>,
 }
@@ -13,8 +13,4 @@ impl FromWorld for VoxelMesh {
 
         VoxelMesh { mesh }
     }
-}
-
-pub fn extract_mesh(mut commands: Commands, voxel_mesh: Res<VoxelMesh>) {
-    commands.insert_resource(voxel_mesh.clone());
 }

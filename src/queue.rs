@@ -1,5 +1,5 @@
 use bevy::{
-    core_pipeline::Transparent3d,
+    core_pipeline::core_3d::Transparent3d,
     pbr::{MeshPipelineKey, MeshUniform},
     prelude::*,
     render::{

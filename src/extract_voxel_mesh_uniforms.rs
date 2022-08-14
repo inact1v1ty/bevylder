@@ -3,6 +3,7 @@ use super::voxel;
 use bevy::{
     pbr::{MeshUniform, NotShadowCaster, NotShadowReceiver},
     prelude::*,
+    render::Extract,
 };
 
 bitflags::bitflags! {
@@ -14,73 +15,45 @@ bitflags::bitflags! {
     }
 }
 
-pub fn extract_voxel_mesh_uniforms(
+pub fn extract_voxel_meshes(
     mut commands: Commands,
-    mut previous_caster_len: Local<usize>,
-    mut previous_not_caster_len: Local<usize>,
-    caster_query: Query<
-        (
+    mut prev_caster_commands_len: Local<usize>,
+    mut prev_not_caster_commands_len: Local<usize>,
+    meshes_query: Extract<
+        Query<(
             Entity,
             &ComputedVisibility,
             &GlobalTransform,
-            Option<&NotShadowReceiver>,
-        ),
-        (With<voxel::Voxel>, Without<NotShadowCaster>),
-    >,
-    not_caster_query: Query<
-        (
-            Entity,
-            &ComputedVisibility,
-            &GlobalTransform,
-            Option<&NotShadowReceiver>,
-        ),
-        (With<voxel::Voxel>, With<NotShadowCaster>),
+            With<voxel::Voxel>,
+            Option<With<NotShadowReceiver>>,
+            Option<With<NotShadowCaster>>,
+        )>,
     >,
 ) {
-    let mut caster_values = Vec::with_capacity(*previous_caster_len);
-    for (entity, computed_visibility, transform, not_receiver) in caster_query.iter() {
-        if !computed_visibility.is_visible {
-            continue;
-        }
-        let transform = transform.compute_matrix();
-        caster_values.push((
-            entity,
-            (MeshUniform {
-                flags: if not_receiver.is_some() {
-                    MeshFlags::empty().bits
-                } else {
-                    MeshFlags::SHADOW_RECEIVER.bits
-                },
-                transform,
-                inverse_transpose_model: transform.inverse().transpose(),
-            },),
-        ));
-    }
-    *previous_caster_len = caster_values.len();
-    commands.insert_or_spawn_batch(caster_values);
+    let mut caster_commands = Vec::with_capacity(*prev_caster_commands_len);
+    let mut not_caster_commands = Vec::with_capacity(*prev_not_caster_commands_len);
+    let visible_meshes = meshes_query.iter().filter(|(_, vis, ..)| vis.is_visible());
 
-    let mut not_caster_values = Vec::with_capacity(*previous_not_caster_len);
-    for (entity, computed_visibility, transform, not_receiver) in not_caster_query.iter() {
-        if !computed_visibility.is_visible {
-            continue;
-        }
+    for (entity, _, transform, _, not_receiver, not_caster) in visible_meshes {
         let transform = transform.compute_matrix();
-        not_caster_values.push((
-            entity,
-            (
-                MeshUniform {
-                    flags: if not_receiver.is_some() {
-                        MeshFlags::empty().bits
-                    } else {
-                        MeshFlags::SHADOW_RECEIVER.bits
-                    },
-                    transform,
-                    inverse_transpose_model: transform.inverse().transpose(),
-                },
-                NotShadowCaster,
-            ),
-        ));
+        let shadow_receiver_flags = if not_receiver.is_some() {
+            MeshFlags::empty().bits
+        } else {
+            MeshFlags::SHADOW_RECEIVER.bits
+        };
+        let uniform = MeshUniform {
+            flags: shadow_receiver_flags,
+            transform,
+            inverse_transpose_model: transform.inverse().transpose(),
+        };
+        if not_caster.is_some() {
+            not_caster_commands.push((entity, (uniform, NotShadowCaster)));
+        } else {
+            caster_commands.push((entity, (uniform,)));
+        }
     }
-    *previous_not_caster_len = not_caster_values.len();
-    commands.insert_or_spawn_batch(not_caster_values);
+    *prev_caster_commands_len = caster_commands.len();
+    *prev_not_caster_commands_len = not_caster_commands.len();
+    commands.insert_or_spawn_batch(caster_commands);
+    commands.insert_or_spawn_batch(not_caster_commands);
 }

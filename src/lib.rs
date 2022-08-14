@@ -1,9 +1,10 @@
 use bevy::{
-    core_pipeline::Transparent3d,
+    core_pipeline::core_3d::Transparent3d,
     prelude::*,
     render::{
-        render_asset::RenderAssetPlugin, render_component::ExtractComponentPlugin,
-        render_phase::AddRenderCommand, render_resource::*, RenderApp, RenderStage,
+        extract_component::ExtractComponentPlugin, extract_resource::ExtractResourcePlugin,
+        render_asset::RenderAssetPlugin, render_phase::AddRenderCommand, render_resource::*,
+        RenderApp, RenderStage,
     },
 };
 
@@ -19,7 +20,7 @@ pub mod wireframe;
 pub use bundle::VoxelBundle;
 pub use voxel::{Voxel, VoxelData};
 
-use extract_voxel_mesh_uniforms::extract_voxel_mesh_uniforms;
+use extract_voxel_mesh_uniforms::extract_voxel_meshes;
 
 pub struct VoxelPlugin;
 
@@ -34,14 +35,14 @@ impl Plugin for VoxelPlugin {
         app.add_plugin(ExtractComponentPlugin::<voxel::Voxel>::default())
             .add_asset::<VoxelData>()
             .add_plugin(RenderAssetPlugin::<VoxelData>::default())
+            .add_plugin(ExtractResourcePlugin::<voxel_mesh::VoxelMesh>::default())
             .init_resource::<voxel_mesh::VoxelMesh>();
 
         app.sub_app_mut(RenderApp)
             .add_render_command::<Transparent3d, draw::DrawVoxels>()
             .init_resource::<pipeline::VoxelPipeline>()
             .init_resource::<SpecializedMeshPipelines<pipeline::VoxelPipeline>>()
-            .add_system_to_stage(RenderStage::Extract, voxel_mesh::extract_mesh)
-            .add_system_to_stage(RenderStage::Extract, extract_voxel_mesh_uniforms)
+            .add_system_to_stage(RenderStage::Extract, extract_voxel_meshes)
             .add_system_to_stage(RenderStage::Queue, queue::queue_voxel);
     }
 }
