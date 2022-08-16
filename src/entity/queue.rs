@@ -10,7 +10,9 @@ use bevy::{
     },
 };
 
-use super::{draw, pipeline, voxel, voxel_mesh};
+use super::{draw, pipeline, voxel};
+
+use crate::common::VoxelMesh;
 
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn queue_voxel(
@@ -20,7 +22,7 @@ pub(crate) fn queue_voxel(
     mut pipelines: ResMut<SpecializedMeshPipelines<pipeline::VoxelPipeline>>,
     mut pipeline_cache: ResMut<PipelineCache>,
     meshes: Res<RenderAssets<Mesh>>,
-    voxel_mesh: Res<voxel_mesh::VoxelMesh>,
+    voxel_mesh: Res<VoxelMesh>,
     voxels: Query<(Entity, &MeshUniform), With<voxel::Voxel>>,
     mut views: Query<(
         &ExtractedView,

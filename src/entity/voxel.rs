@@ -2,7 +2,6 @@ use bevy::{
     core::cast_slice,
     ecs::system::{lifetimeless::SRes, SystemParamItem},
     prelude::*,
-    reflect::TypeUuid,
     render::{
         extract_component::ExtractComponent,
         render_asset::{PrepareAssetError, RenderAsset},
@@ -14,12 +13,9 @@ use bevy::{
     },
 };
 
-use super::pipeline;
+use crate::common::VoxelData;
 
-#[repr(transparent)]
-#[derive(Clone, TypeUuid)]
-#[uuid = "180e10f3-5c78-43ed-8b46-69af97071fdc"]
-pub struct VoxelData(pub [u32; 16 * 16 * 16]);
+use super::pipeline;
 
 #[derive(Clone)]
 pub struct VoxelMeta {

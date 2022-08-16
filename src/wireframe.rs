@@ -28,7 +28,8 @@ use bevy::render::{
 };
 use bevy::utils::tracing::error;
 
-use super::{draw, voxel, voxel_mesh};
+use crate::common::VoxelMesh;
+use crate::entity::{draw, voxel};
 
 pub const WIREFRAME_SHADER_HANDLE: HandleUntyped =
     HandleUntyped::weak_from_u64(Shader::TYPE_UUID, 6379866545205140404);
@@ -118,7 +119,7 @@ fn queue_wireframes(
     mut pipelines: ResMut<SpecializedMeshPipelines<WireframePipeline>>,
     mut pipeline_cache: ResMut<PipelineCache>,
     msaa: Res<Msaa>,
-    voxel_mesh: Res<voxel_mesh::VoxelMesh>,
+    voxel_mesh: Res<VoxelMesh>,
     mut material_meshes: ParamSet<(
         Query<(Entity, &MeshUniform), With<voxel::Voxel>>,
         Query<(Entity, &MeshUniform), (With<voxel::Voxel>, With<VoxelWireframe>)>,

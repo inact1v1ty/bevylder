@@ -14,7 +14,7 @@ use bevy::{
     },
 };
 
-use super::voxel_mesh::VoxelMesh;
+use crate::common::{VoxelData, VoxelMesh};
 
 use super::voxel;
 
@@ -29,10 +29,7 @@ pub(crate) type DrawVoxels = (
 pub(crate) struct SetVoxelBindGroup<const I: usize>;
 
 impl<const I: usize> EntityRenderCommand for SetVoxelBindGroup<I> {
-    type Param = (
-        SQuery<Read<voxel::Voxel>>,
-        SRes<RenderAssets<voxel::VoxelData>>,
-    );
+    type Param = (SQuery<Read<voxel::Voxel>>, SRes<RenderAssets<VoxelData>>);
 
     fn render<'w>(
         _view: Entity,
@@ -60,24 +57,25 @@ impl EntityRenderCommand for DrawVoxel {
         (meshes, voxel_mesh): SystemParamItem<'w, '_, Self::Param>,
         pass: &mut TrackedRenderPass<'w>,
     ) -> RenderCommandResult {
-        if let Some(gpu_mesh) = meshes.into_inner().get(&voxel_mesh.mesh) {
-            pass.set_vertex_buffer(0, gpu_mesh.vertex_buffer.slice(..));
-            match &gpu_mesh.buffer_info {
-                GpuBufferInfo::Indexed {
-                    buffer,
-                    index_format,
-                    count,
-                } => {
-                    pass.set_index_buffer(buffer.slice(..), 0, *index_format);
-                    pass.draw_indexed(0..*count, 0, 0..1);
-                }
-                GpuBufferInfo::NonIndexed { vertex_count } => {
-                    pass.draw(0..*vertex_count, 0..1);
-                }
+        let gpu_mesh = match meshes.into_inner().get(&voxel_mesh.mesh) {
+            Some(gpu_mesh) => gpu_mesh,
+            None => return RenderCommandResult::Failure,
+        };
+
+        pass.set_vertex_buffer(0, gpu_mesh.vertex_buffer.slice(..));
+        match &gpu_mesh.buffer_info {
+            GpuBufferInfo::Indexed {
+                buffer,
+                index_format,
+                count,
+            } => {
+                pass.set_index_buffer(buffer.slice(..), 0, *index_format);
+                pass.draw_indexed(0..*count, 0, 0..1);
             }
-            RenderCommandResult::Success
-        } else {
-            RenderCommandResult::Failure
+            GpuBufferInfo::NonIndexed { vertex_count } => {
+                pass.draw(0..*vertex_count, 0..1);
+            }
         }
+        RenderCommandResult::Success
     }
 }
